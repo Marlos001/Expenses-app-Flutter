@@ -85,6 +85,11 @@ class TransactionList extends StatelessWidget {
                         color: Colors.grey,
                       ),
                     ),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete),
+                      color: Colors.amber,
+                      onPressed: () {},
+                    ),
                   ),
                 );
               },

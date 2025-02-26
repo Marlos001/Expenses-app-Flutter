@@ -6,36 +6,38 @@ class TransactionList extends StatelessWidget {
   final List<Transaction> transactions;
   final void Function(String) onRemove;
 
-  TransactionList(this.transactions, this.onRemove,{super.key});
+  TransactionList(this.transactions, this.onRemove, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return transactions.isEmpty
-        ? Column(
-            children: [
-              const SizedBox(
-                height: 20,
-              ),
-              Container(
-                height: 200,
-                child: Image.asset(
-                  'assets/images/waiting.png',
-                  fit: BoxFit.cover,
+        ? LayoutBuilder(builder: (context, constraints) {
+            return Column(
+              children: [
+                const SizedBox(
+                  height: 20,
                 ),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Text(
-                'No transactions yet!',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  fontFamily: 'Quicksand',
+                Container(
+                  height: constraints.maxHeight * 0.6,
+                  child: Image.asset(
+                    'assets/images/waiting.png',
+                    fit: BoxFit.cover,
+                  ),
                 ),
-              ),
-            ],
-          )
+                const SizedBox(
+                  height: 20,
+                ),
+                Text(
+                  'No transactions yet!',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Quicksand',
+                  ),
+                ),
+              ],
+            );
+          })
         : ListView.builder(
             itemCount: transactions.length,
             itemBuilder: (ctx, index) {

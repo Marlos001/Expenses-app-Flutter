@@ -1,9 +1,11 @@
 import './components/chart.dart';
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'dart:io';
 import './components/transaction_form.dart';
 import './components/transaction_list.dart';
 import '../models/transaction.dart';
+import 'package:flutter/cupertino.dart';
 
 main() => runApp(ExpensesApp());
 
@@ -98,8 +100,27 @@ class _MyHomeState extends State<MyHome> {
 
   @override
   Widget build(BuildContext context) {
+    final bodyPage = SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (_showChart || !isLandscape)
+              Container(
+                height: availableHeight * (isLandscape ? 0.6 : 0.2),
+                child: Chart(_recentTransactions),
+              ),
+            if (!_showChart || !isLandscape)
+              Container(
+                height: availableHeight * (isLandscape ? 1 : 0.8),
+                child: TransactionList(_transactions, _removeTransaction),
+              ),
+          ],
+        ),
+      );
+
+    final MediaQuery = MediaQuery.of(context)
     bool isLandscape =
-        MediaQuery.of(context).orientation == Orientation.landscape;
+        MediaQuery.orientation == Orientation.landscape;
 
     final appBar = AppBar(
       title: Text(
@@ -125,34 +146,45 @@ class _MyHomeState extends State<MyHome> {
       ],
     );
 
-    final availableHeight = MediaQuery.of(context).size.height -
+    final availableHeight = MediaQuery.size.height -
         appBar.preferredSize.height -
-        MediaQuery.of(context).padding.top;
+        MediaQuery.padding.top;
 
-    return Scaffold(
-      appBar: appBar,
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_showChart || !isLandscape)
-              Container(
-                height: availableHeight * (isLandscape ? 0.6 : 0.2),
-                child: Chart(_recentTransactions),
+    return Platform.isIOS
+        ? CupertinoPageScaffold(
+            navigationBar: CupertinoNavigationBar(
+              middle: Text('Despesas Pessoais'),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isLandscape)
+                    GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _showChart = !_showChart;
+                        });
+                      },
+                      child: Icon(_showChart ? CupertinoIcons.list_bullet : CupertinoIcons.chart_bar),
+                    ),
+                  GestureDetector(
+                    onTap: () => _openTransactionFormModal(context),
+                    child: Icon(CupertinoIcons.add),
+                  ),
+                ],
               ),
-            if (!_showChart || !isLandscape)
-              Container(
-                height: availableHeight * (isLandscape ? 1 : 0.8),
-                child: TransactionList(_transactions, _removeTransaction),
-              ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () => _openTransactionFormModal(context),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
+            ),
+            child: bodyPage,
+          )
+        : Scaffold(
+            appBar: appBar,
+            body: bodyPage,
+            floatingActionButton: Platform.isIOS
+                ? Container()
+                : FloatingActionButton(
+                    child: Icon(Icons.add),
+                    onPressed: () => _openTransactionFormModal(context),
+                  ),
+            floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+          );
   }
 }

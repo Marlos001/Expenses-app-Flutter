@@ -100,28 +100,8 @@ class _MyHomeState extends State<MyHome> {
 
   @override
   Widget build(BuildContext context) {
-    final bodyPage = SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_showChart || !isLandscape)
-              Container(
-                height: availableHeight * (isLandscape ? 0.6 : 0.2),
-                child: Chart(_recentTransactions),
-              ),
-            if (!_showChart || !isLandscape)
-              Container(
-                height: availableHeight * (isLandscape ? 1 : 0.8),
-                child: TransactionList(_transactions, _removeTransaction),
-              ),
-          ],
-        ),
-      );
-
-    final MediaQuery = MediaQuery.of(context)
-    bool isLandscape =
-        MediaQuery.orientation == Orientation.landscape;
-
+    final mediaQuery = MediaQuery.of(context);
+    bool isLandscape = mediaQuery.orientation == Orientation.landscape;
     final appBar = AppBar(
       title: Text(
         'Expenses App',
@@ -146,9 +126,28 @@ class _MyHomeState extends State<MyHome> {
       ],
     );
 
-    final availableHeight = MediaQuery.size.height -
+    final availableHeight = mediaQuery.size.height -
         appBar.preferredSize.height -
-        MediaQuery.padding.top;
+        mediaQuery.padding.top;
+
+    final bodyPage = SafeArea(
+        child: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (_showChart || !isLandscape)
+            Container(
+              height: availableHeight * (isLandscape ? 0.6 : 0.2),
+              child: Chart(_recentTransactions),
+            ),
+          if (!_showChart || !isLandscape)
+            Container(
+              height: availableHeight * (isLandscape ? 1 : 0.8),
+              child: TransactionList(_transactions, _removeTransaction),
+            ),
+        ],
+      ),
+    ));
 
     return Platform.isIOS
         ? CupertinoPageScaffold(
@@ -164,7 +163,9 @@ class _MyHomeState extends State<MyHome> {
                           _showChart = !_showChart;
                         });
                       },
-                      child: Icon(_showChart ? CupertinoIcons.list_bullet : CupertinoIcons.chart_bar),
+                      child: Icon(_showChart
+                          ? CupertinoIcons.list_bullet
+                          : CupertinoIcons.chart_bar),
                     ),
                   GestureDetector(
                     onTap: () => _openTransactionFormModal(context),
@@ -184,7 +185,8 @@ class _MyHomeState extends State<MyHome> {
                     child: Icon(Icons.add),
                     onPressed: () => _openTransactionFormModal(context),
                   ),
-            floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
           );
   }
 }
